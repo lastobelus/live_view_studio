@@ -15,7 +15,6 @@ defmodule LiveViewStudioWeb.LightLive do
     IO.puts "RENDER #{inspect(self())}"
     ~L"""
     <h1>Front Porch Light</h1>
-    <%= @brightness %>
     <div id="light">
       <div class="meter">
         <span style="width: <%= @brightness %>%">
@@ -42,6 +41,14 @@ defmodule LiveViewStudioWeb.LightLive do
       <button phx-click="random">
         random
       </button>
+
+      <div>
+        <form phx-change="update">
+          <input type="range" min="0" max="100"
+                name="brightness" value="<%= @brightness %>" />
+        </form>
+      </div>
+
     </div>
 
     """
@@ -87,4 +94,13 @@ defmodule LiveViewStudioWeb.LightLive do
     {:noreply, socket}
   end
 
+
+    def handle_event("update", %{"brightness" => brightness}, socket) do
+    # &() is shorthand capture syntax for creating an anonymous function
+    # function will receive the current value of the socket key
+    # &1 represents first argument to function
+    brightness = String.to_integer(brightness)
+    socket = assign(socket, :brightness, brightness)
+    {:noreply, socket}
+  end
 end
