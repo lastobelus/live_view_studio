@@ -7,7 +7,8 @@ defmodule LiveViewStudioWeb.FlightsLive do
     socket = assign(
       socket,
       flight_number: "",
-      flights: Flights.list_flights()
+      flights: Flights.list_flights(),
+      loading: false
     )
     {:ok, socket}
   end
@@ -15,7 +16,18 @@ defmodule LiveViewStudioWeb.FlightsLive do
   def render(assigns) do
     ~L"""
     <h1>Find a Flight</h1>
+
     <div id="search">
+      <form phx-submit="flight_number_search">
+        <input type="text" name="flight_number" value="<%= @flight_number %>"
+              autofocus autocomplete="off"
+              placeholder=""
+              <%= if @loading, do: "readonly" %>
+              />
+        <button type="submit">
+          <img src="images/search.svg">
+        </button>
+      </form>
 
       <%= if @loading do %>
         <div class="loader">Loading...</div>
@@ -49,5 +61,36 @@ defmodule LiveViewStudioWeb.FlightsLive do
       </div>
     </div>
     """
+  end
+
+  def handle_event("flight_number_search", %{"flight_number" => flight_number}, socket) do
+    send(self(), {:run_flight_number_search, flight_number})
+    socket = assign(
+      socket,
+      loading: true,
+      flight_number: flight_number,
+      flights: []
+    )
+    {:noreply, socket}
+  end
+
+  def handle_info({:run_flight_number_search, flight_number}, socket) do
+    case Flights.search_by_number(flight_number) do
+      [] ->
+        socket =
+          socket
+          |> put_flash(:error, "No flights matching \"#{flight_number}\"")
+          |> assign(loading: false, flights: [])
+        {:noreply, socket}
+
+      flights ->
+        socket =
+          socket
+          |> clear_flash()
+          |> assign(loading: false, flights: flights)
+        {:noreply, socket}
+    end
+
+
   end
 end
