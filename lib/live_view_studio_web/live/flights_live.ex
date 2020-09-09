@@ -97,6 +97,7 @@ defmodule LiveViewStudioWeb.FlightsLive do
         socket,
         loading: true,
         flight_number: flight_number,
+        airport: "",
         flights: []
       )
     end
@@ -117,6 +118,7 @@ defmodule LiveViewStudioWeb.FlightsLive do
       socket = assign(
         socket,
         loading: true,
+        flight_number: "",
         airport: airport,
         flights: []
       )
