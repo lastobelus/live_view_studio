@@ -39,6 +39,7 @@
                placeholder="City"
                autofocus autocomplete="off"
                list="matches"
+               phx-debounce="1000"
                <%= if @loading, do: "readonly" %> />
 
         <button type="submit">
