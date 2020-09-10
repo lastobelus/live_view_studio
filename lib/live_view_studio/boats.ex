@@ -22,6 +22,32 @@ defmodule LiveViewStudio.Boats do
   end
 
   @doc """
+  Returns a list of boats matching the criteria
+
+  ## Example Criteria
+
+      [type: "sporting", prices: ["$", "$$"]]
+  """
+  def list_boats(criteria) when is_list(criteria) do
+    query = from(b in Boat)
+
+    Enum.reduce(criteria, query, fn
+      {:type, ""}, query ->
+        query
+
+      {:type, type}, query ->
+        from q in query, where: q.type == ^type
+
+      {:prices, [""]}, query ->
+        query
+
+      {:prices, prices}, query ->
+        from q in query, where: q.price in ^prices
+    end)
+    |> Repo.all()
+  end
+
+  @doc """
   Gets a single boat.
 
   Raises `Ecto.NoResultsError` if the Boat does not exist.
