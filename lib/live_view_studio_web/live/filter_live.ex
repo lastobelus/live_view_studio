@@ -12,7 +12,17 @@ defmodule LiveViewStudioWeb.FilterLive do
         prices: []
       )
 
-    {:ok, socket}
+    # temporary_assigns is an option for performance optimization
+    # since mount is creating a stateful process, we don't want
+    # to keep the list of boats in memory between renders, since
+    # all our events query a new list anyway.
+    # temporary assigns is a keyword list whose keys are the
+    # assigns that are temporary, and whose values are the
+    # values those assigns should be reset to on mount.
+    # It is often used with `phx-update="append"` in an element
+    # that contains a list comprehension.
+    # [more info](https://hexdocs.pm/phoenix_live_view/dom-patching.html)
+    {:ok, socket, temporary_assigns: [boats: []]}
   end
 
   def handle_event("filter", %{"type" => type, "prices" => prices}, socket) do
