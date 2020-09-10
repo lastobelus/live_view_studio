@@ -4,16 +4,17 @@ defmodule LiveViewStudioWeb.FlightsLive do
   alias LiveViewStudio.Flights
   alias LiveViewStudio.Airports
 
-
   def mount(_params, _session, socket) do
-    socket = assign(
-      socket,
-      flight_number: "",
-      airport: "",
-      airport_matches: [],
-      flights: Flights.list_flights(),
-      loading: false
-    )
+    socket =
+      assign(
+        socket,
+        flight_number: "",
+        airport: "",
+        airport_matches: [],
+        flights: Flights.list_flights(),
+        loading: false
+      )
+
     {:ok, socket}
   end
 
@@ -42,6 +43,11 @@ defmodule LiveViewStudioWeb.FlightsLive do
                 debounce="250"
                 <%= if @loading, do: "readonly" %>
                 />
+          <datalist id="airport_list">
+            <%= for airport_match <- @airport_matches do %>
+              <option value="<%= airport_match %>"><%= airport_match %></option>
+            <% end %>
+          </datalist>
           <button type="submit">
             <img src="images/search.svg">
           </button>
@@ -50,11 +56,6 @@ defmodule LiveViewStudioWeb.FlightsLive do
       </div>
 
 
-      <datalist id="airport_list">
-        <%= for airport_match <- @airport_matches do %>
-          <option value="<%= airport_match %>"><%= airport_match %></option>
-        <% end %>
-      </datalist>
 
       <%= if @loading do %>
         <div class="loader">Loading...</div>
@@ -93,39 +94,50 @@ defmodule LiveViewStudioWeb.FlightsLive do
   def handle_event("flight-number-search", %{"flight_number" => flight_number}, socket) do
     if not is_blank?(flight_number) do
       send(self(), {:run_search, &Flights.search_by_number/1, flight_number})
-      socket = assign(
-        socket,
-        loading: true,
-        flight_number: flight_number,
-        airport: "",
-        flights: []
-      )
+
+      socket =
+        assign(
+          socket,
+          loading: true,
+          flight_number: flight_number,
+          airport: "",
+          flights: []
+        )
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
     end
-    {:noreply, socket}
   end
 
   def handle_event("suggest-airport", %{"airport" => airport}, socket) do
-    socket = assign(
-      socket,
-      airport_matches: Airports.suggest(airport)
-    )
+    socket =
+      assign(
+        socket,
+        airport_matches: Airports.suggest(airport)
+      )
+
     {:noreply, socket}
   end
 
   def handle_event("airport-search", %{"airport" => airport}, socket) do
     if not is_blank?(airport) do
       send(self(), {:run_search, &Flights.search_by_airport/1, airport})
-      socket = assign(
-        socket,
-        loading: true,
-        flight_number: "",
-        airport: airport,
-        flights: []
-      )
-    end
-    {:noreply, socket}
-  end
 
+      socket =
+        assign(
+          socket,
+          loading: true,
+          flight_number: "",
+          airport: airport,
+          flights: []
+        )
+
+      {:noreply, socket}
+    else
+      {:noreply, socket}
+    end
+  end
 
   def handle_info({:run_search, search_fn, query}, socket) do
     case search_fn.(query) do
@@ -134,6 +146,7 @@ defmodule LiveViewStudioWeb.FlightsLive do
           socket
           |> put_flash(:error, "No flights matching \"#{query}\"")
           |> assign(loading: false, flights: [])
+
         {:noreply, socket}
 
       flights ->
@@ -141,11 +154,12 @@ defmodule LiveViewStudioWeb.FlightsLive do
           socket
           |> clear_flash()
           |> assign(loading: false, flights: flights)
+
         {:noreply, socket}
     end
   end
 
-  defp is_blank? value do
+  defp is_blank?(value) do
     "" == value |> to_string() |> String.trim()
   end
 end
