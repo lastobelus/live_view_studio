@@ -5,18 +5,22 @@ defmodule LiveViewStudioWeb.LightLive do
   # initializes state of the socket
   # params: map containing query & router params
   def mount(_params, _session, socket) do
-    IO.puts "MOUNT #{inspect(self())}"
-    socket = assign(
-      socket,
-      brightness: 10,
-      temp: 5000
-    )
+    IO.puts("MOUNT #{inspect(self())}")
+
+    socket =
+      assign(
+        socket,
+        brightness: 10,
+        temp: 5000
+      )
+
     # IO.inspect socket
     {:ok, socket}
   end
 
   def render(assigns) do
-    IO.puts "RENDER #{inspect(self())}"
+    IO.puts("RENDER #{inspect(self())}")
+
     ~L"""
     <h1>Front Porch Light</h1>
     <div id="light">
@@ -53,12 +57,9 @@ defmodule LiveViewStudioWeb.LightLive do
 
           <div class="px-5 py-2 mt-3 bg-gray-300 rounded-lg">
             <strong class="mr-2 font-bold">Temperature</strong>
-            <input type="radio" id="3000" name="temp" value="3000" <%= if 3000 == @temp, do: "checked" %>/>
-            <label for="3000">3000</label>
-            <input type="radio" id="4000" name="temp" value="4000" <%= if 4000 == @temp, do: "checked" %> />
-            <label for="4000">4000</label>
-            <input type="radio" id="5000" name="temp" value="5000" <%= if 5000 == @temp, do: "checked" %> />
-            <label for="5000">5000</label>
+            <%= for temp_choice <- ["3000", "4000", "5000"] do %>
+              <%= temperature_radio_button(temperature: temp_choice, selected: temp_choice == @temp) %>
+            <% end %>
           </div>
         </form>
       </div>
@@ -68,19 +69,17 @@ defmodule LiveViewStudioWeb.LightLive do
     """
   end
 
-
-
   # whenever a liveview state changes, render is automatically called to re-render
   # with the new state. The new render is diffed for changes and the changes sent
   # to the client
   def handle_event("on", _event_metadata, socket) do
-    IO.puts "ON #{inspect(self())}"
+    IO.puts("ON #{inspect(self())}")
     socket = assign(socket, :brightness, 100)
     {:noreply, socket}
   end
 
   def handle_event("off", _event_metadata, socket) do
-    IO.puts "OFF #{inspect(self())}"
+    IO.puts("OFF #{inspect(self())}")
     socket = assign(socket, :brightness, 0)
     {:noreply, socket}
   end
@@ -100,7 +99,7 @@ defmodule LiveViewStudioWeb.LightLive do
     {:noreply, socket}
   end
 
-    def handle_event("random", _event_metadata, socket) do
+  def handle_event("random", _event_metadata, socket) do
     # &() is shorthand capture syntax for creating an anonymous function
     # function will receive the current value of the socket key
     # &1 represents first argument to function
@@ -108,19 +107,20 @@ defmodule LiveViewStudioWeb.LightLive do
     {:noreply, socket}
   end
 
-
-    def handle_event("update", %{"brightness" => brightness, "temp" => temp}, socket) do
+  def handle_event("update", %{"brightness" => brightness, "temp" => temp}, socket) do
     # &() is shorthand capture syntax for creating an anonymous function
     # function will receive the current value of the socket key
     # &1 represents first argument to function
     brightness = String.to_integer(brightness)
-        temp = String.to_integer(temp)
+    temp = String.to_integer(temp)
 
-    socket = assign(
-      socket,
-      brightness: brightness,
-      temp: temp
-    )
+    socket =
+      assign(
+        socket,
+        brightness: brightness,
+        temp: temp
+      )
+
     {:noreply, socket}
   end
 
@@ -136,4 +136,13 @@ defmodule LiveViewStudioWeb.LightLive do
   defp temp_color(3000), do: "#F1C40D"
   defp temp_color(4000), do: "#FEFF66"
   defp temp_color(5000), do: "#99CCFF"
+
+  defp temperature_radio_button(assigns) do
+    assigns = Enum.into(assigns, %{})
+
+    ~L"""
+    <input type="radio" id="<%= @temperature %>" name="temp" value="<%= @temperature %>" <%= if @selected, do: "checked" %>/>
+    <label for="<%= @temperature %>"><%= @temperature %></label>
+    """
+  end
 end
