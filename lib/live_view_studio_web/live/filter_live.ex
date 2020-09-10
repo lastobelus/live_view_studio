@@ -4,14 +4,7 @@ defmodule LiveViewStudioWeb.FilterLive do
   alias LiveViewStudio.Boats
 
   def mount(_params, _session, socket) do
-    socket =
-      assign(
-        socket,
-        boats: Boats.list_boats(),
-        type: "",
-        prices: []
-      )
-
+    socket = assign_defaults(socket)
     # temporary_assigns is an option for performance optimization
     # since mount is creating a stateful process, we don't want
     # to keep the list of boats in memory between renders, since
@@ -36,6 +29,21 @@ defmodule LiveViewStudioWeb.FilterLive do
       )
 
     {:noreply, socket}
+  end
+
+  def handle_event("clear-filters", _, socket) do
+    socket = assign_defaults(socket)
+
+    {:noreply, socket}
+  end
+
+  defp assign_defaults(socket) do
+    assign(
+      socket,
+      boats: Boats.list_boats(),
+      type: "",
+      prices: []
+    )
   end
 
   defp type_options do
