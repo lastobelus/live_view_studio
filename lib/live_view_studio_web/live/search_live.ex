@@ -18,7 +18,7 @@ defmodule LiveViewStudioWeb.SearchLive do
     ~L"""
     <h1>Find a Store</h1>
     <div id="search">
-
+      <!-- we don't want phx-change, we only want to search when the user has finished typing a zip -->
       <form phx-submit="zip-search">
         <input type="text" name="zip" value="<%= @zip %>"
                placeholder="Zip Code"
