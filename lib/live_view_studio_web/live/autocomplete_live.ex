@@ -1,4 +1,4 @@
- defmodule LiveViewStudioWeb.AutocompleteLive do
+defmodule LiveViewStudioWeb.AutocompleteLive do
   use LiveViewStudioWeb, :live_view
 
   alias LiveViewStudio.Stores
@@ -14,7 +14,7 @@
         loading: false
       )
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [stores: [], cities: []]}
   end
 
   def render(assigns) do
@@ -108,10 +108,12 @@
   end
 
   def handle_event("suggest-city", %{"city" => prefix}, socket) do
-    socket = assign(
-      socket,
-      matches: Cities.suggest(prefix)
-    )
+    socket =
+      assign(
+        socket,
+        matches: Cities.suggest(prefix)
+      )
+
     {:noreply, socket}
   end
 
@@ -128,9 +130,8 @@
     {:noreply, socket}
   end
 
-
   def handle_info({:run_zip_search, zip}, socket) do
-    case Stores.search_by_zip(zip) do
+    case Stores.list_by_zip(zip) do
       [] ->
         socket =
           socket
@@ -146,7 +147,7 @@
   end
 
   def handle_info({:run_city_search, city}, socket) do
-    case Stores.search_by_city(city) do
+    case Stores.list_by_city(city) do
       [] ->
         socket =
           socket
@@ -160,6 +161,4 @@
         {:noreply, socket}
     end
   end
-
-
 end

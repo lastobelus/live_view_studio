@@ -11,7 +11,7 @@ defmodule LiveViewStudioWeb.SearchLive do
         loading: false
       )
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [stores: []]}
   end
 
   def render(assigns) do
@@ -84,7 +84,7 @@ defmodule LiveViewStudioWeb.SearchLive do
   end
 
   def handle_info({:run_zip_search, zip}, socket) do
-    case Stores.search_by_zip(zip) do
+    case Stores.list_by_zip(zip) do
       [] ->
         socket =
           socket
