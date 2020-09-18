@@ -9,9 +9,11 @@ defmodule LiveViewStudioWeb.ServersLive do
     socket =
       assign(socket,
         servers: servers,
+        # hd() returns head of list
         selected_server: hd(servers)
       )
 
+    # we _DON'T_ want to use temporary assigns here, because the rendered list changes every time a different server is selected (the css class to indicate selected)
     {:ok, socket}
   end
 
@@ -22,11 +24,12 @@ defmodule LiveViewStudioWeb.ServersLive do
       <div class="sidebar">
         <nav>
           <%= for server <- @servers do %>
-            <a href="#"
-               class="<%= if server == @selected_server, do: 'active' %>">
-              <img src="/images/server.svg">
-              <%= server.name %>
-            </a>
+            <%= live_patch link_body(server),
+              to: Routes.live_path(@socket,
+                __MODULE__,
+                id: server.id
+              ),
+              class: if server == @selected_server, do: "active"%>
           <% end %>
         </nav>
       </div>
@@ -70,6 +73,33 @@ defmodule LiveViewStudioWeb.ServersLive do
         </div>
       </div>
     </div>
+    """
+  end
+
+  def handle_params(%{"id" => id}, _url, socket) do
+    id = String.to_integer(id)
+    server = Servers.get_server!(id)
+
+    socket =
+      assign(
+        socket,
+        selected_server: server,
+        page_title: "What's up #{server.name}?"
+      )
+
+    {:noreply, socket}
+  end
+
+  def handle_params(_, _url, socket) do
+    {:noreply, socket}
+  end
+
+  defp link_body(server) do
+    assigns = %{name: server.name}
+
+    ~L"""
+    <img src="/images/server.svg">
+    <%= @name %>
     """
   end
 end

@@ -14,6 +14,5 @@ defmodule LiveViewStudio.Repo.Migrations.CreateServers do
 
       timestamps()
     end
-
   end
 end
