@@ -24,7 +24,7 @@ defmodule LiveViewStudioWeb.SearchLive do
       <!-- we don't want phx-change, we only want to search when the user has finished typing a zip -->
       <form phx-submit="zip-search">
         <input type="text" name="zip" value="<%= @zip %>"
-              placeholder=""
+              placeholder="zip"
               autofocus autocomplete="off"
               <%= if @loading, do: "readonly" %> />
         <button type="submit">

@@ -53,12 +53,12 @@ defmodule LiveViewStudioWeb.LightLive do
       <div>
         <form phx-change="update">
           <input type="range" min="0" max="100"
-                name="brightness" value="<%= @brightness %>" />
+                 name="brightness" value="<%= @brightness %>" />
 
           <div class="px-5 py-2 mt-3 bg-gray-300 rounded-lg">
             <strong class="mr-2 font-bold">Temperature</strong>
             <%= for temp_choice <- ["3000", "4000", "5000"] do %>
-              <%= temperature_radio_button(temperature: temp_choice, selected: temp_choice == @temp) %>
+              <%= temperature_radio_button(temperature: temp_choice, selected: temp_choice == to_string(@temp)) %>
             <% end %>
           </div>
         </form>
